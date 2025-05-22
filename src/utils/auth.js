@@ -1,3 +1,3 @@
-export const getToken = () => localStorage.getItem("token");
+export const getToken = () => localStorage.getItem("adminToken");
 
 export const isAuthenticated = () => !!getToken();
