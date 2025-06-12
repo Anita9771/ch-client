@@ -1,4 +1,5 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route} from "react-router-dom";
+
 import {
   Register,
   Login,
@@ -22,8 +23,13 @@ import React, {useEffect, useState} from "react";
 
 function App() {
 
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(true); // simulate login
   // Check authentication status (example)
+
+  // const navigate = useNavigate();
+  // Check if user is authenticated on initial load
+
+
 useEffect(() => {
   const token = localStorage.getItem('token') || localStorage.getItem('adminToken');
   setIsAuthenticated(!!token);
@@ -34,21 +40,14 @@ const handleLogout = () => {
   // 1. Clear authentication tokens
   localStorage.removeItem('token');          // For regular users
   localStorage.removeItem('adminToken');    // For admins
-  
-  // 2. Clear any user data from state/context if using
-  // setUser(null);
-  // setAdmin(null);
-  
-  // 3. Redirect to login page
-  window.location.href = '/login'; // Simple redirect
-  // Or better with React Router:
-  // navigate('/login');
+  setIsAuthenticated(false);
+  window.location.href = '/login';
 };
 
   return (
     <div className="App">
       <Router>
-        <Navbar  isAuthenticated={true} isAdmin={true} onLogout={handleLogout}  />
+       <Navbar isAuthenticated={isAuthenticated} onLogout={handleLogout} />
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/register" element={<Register />} />
