@@ -1,12 +1,13 @@
 import { useState } from "react";
 import axios from "../api/axios";
+import { useNavigate } from "react-router-dom"; //
 import { FiEye, FiEyeOff } from "react-icons/fi";
 const Register = () => {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
-    phone: "",
+    phoneNumber: "",
     dateOfBirth: "",
     address: "",
     city: "",
@@ -22,6 +23,7 @@ const Register = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+   const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -51,6 +53,10 @@ const Register = () => {
       setMessage(response.data.message || "Registration successful!");
       setLoading(false);
       // Optionally, redirect or clear form here
+       // Redirect to login after brief delay
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500); // 1.5 seconds to show success message
     } catch (error) {
       setMessage(error.response?.data?.message || "Registration failed.");
       setLoading(false);
@@ -95,9 +101,9 @@ const Register = () => {
 
         <input
           type="tel"
-          name="phone"
+          name="phoneNumber"
           placeholder="Phone Number"
-          value={formData.phone}
+          value={formData.phoneNumber}
           onChange={handleChange}
           required
           className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"

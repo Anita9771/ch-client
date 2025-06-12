@@ -19,4 +19,7 @@ export { default as CreditRequests } from "./CreditRequests";
 export { default as WithdrawalRequests } from "./WithdrawalRequests";
 export { default as UserManagement } from "./UserManagement";
 export { default as NotFound } from "./NotFound";
+export { default as AdminProtectedRoute } from "./AdminProtectedRoute";
+export { default as ForgotPassword } from "./ForgotPassword";
+export { default as ResetPassword } from "./ResetPassword";
 

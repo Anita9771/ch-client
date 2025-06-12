@@ -5,7 +5,8 @@ import { getToken } from "../utils/auth";
 const NewTransaction = () => {
   const [type, setType] = useState("credit");
   const [amount, setAmount] = useState("");
-  const [msg, setMsg] = useState("");
+  const [msg, setMsg] = useState({ text: "", isError: false });
+
 
   const submitRequest = async (e) => {
     e.preventDefault();
@@ -36,7 +37,13 @@ const NewTransaction = () => {
           className="w-full border p-2 rounded"
         />
         <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded">Submit</button>
-        {msg && <p className="text-green-600 text-sm text-center">{msg}</p>}
+        {msg.text && (
+          <p className={`text-sm text-center mt-4 ${
+            msg.isError ? "text-red-600" : "text-green-600"
+          }`}>
+            {msg.text}
+          </p>
+        )}
       </form>
     </div>
   );

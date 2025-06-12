@@ -13,14 +13,14 @@ const UserManagement = () => {
   };
 
   const approveUser = async (id) => {
-    await axios.put(`/api/admin/approve/${id}`, {}, {
+    await axios.patch(`/api/admin/users/${id}/approve`, {}, {
       headers: { Authorization: `Bearer ${getToken()}` },
     });
     fetchUsers();
   };
 
   const updateCategory = async (id, category) => {
-    await axios.put(`/api/admin/category/${id}`, { category }, {
+    await axios.put(`/api/admin/users/${id}/category/`, { category }, {
       headers: { Authorization: `Bearer ${getToken()}` },
     });
     fetchUsers();
@@ -36,7 +36,7 @@ const UserManagement = () => {
   };
 
   const blockUser = async (id) => {
-    await axios.put(`/api/admin/block/${id}`, {}, {
+    await axios.put(`/api/admin/users/${id}/block`, {}, {
       headers: { Authorization: `Bearer ${getToken()}` },
     });
     fetchUsers();
@@ -48,6 +48,8 @@ const UserManagement = () => {
 
   const getBadgeClass = (category) => {
     switch (category?.toLowerCase()) {
+       case ' ':
+        return 'bg-gray-100 text-yellow-800';
       case 'gold':
         return 'bg-yellow-100 text-yellow-800';
       case 'silver':
@@ -76,9 +78,9 @@ const UserManagement = () => {
           <tbody>
             {users.map((user) => (
               <tr key={user._id} className="text-center">
-                <td className="p-2 border">{user.name}</td>
+                <td className="p-2 border">{user.firstName} {user.lastName}</td>
                 <td className="p-2 border">{user.email}</td>
-                <td className="p-2 border">{user.approved ? "✅" : "❌"}</td>
+                <td className="p-2 border">{user.isApproved ? "✅" : "❌"}</td>
                 <td className="p-2 border space-y-1">
                   <span
                     className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getBadgeClass(user.category)}`}

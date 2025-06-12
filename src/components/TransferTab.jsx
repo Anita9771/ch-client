@@ -85,7 +85,7 @@ const TransferTab = () => {
           className="w-full p-2 border rounded"
         >
           <option value="withdraw">Withdraw</option>
-          <option value="credit">Credit</option>
+          {/* <option value="credit">Credit</option> */}
         </select>
 
         <input

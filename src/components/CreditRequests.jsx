@@ -3,97 +3,106 @@ import axios from "../api/axios";
 import { getToken } from "../utils/auth";
 
 const CreditRequests = () => {
-  const [requests, setRequests] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState("");
+  const [displayAmount, setDisplayAmount] = useState("");
+  const [rawAmount, setRawAmount] = useState(0);
+  const [message, setMessage] = useState("");
 
-  const fetchRequests = async () => {
+  // Format currency for display
+  const formatCurrency = (value) => {
+    // Remove all non-digit characters
+    const numericString = value.replace(/[^\d]/g, "");
+    
+    // Convert to number (in cents)
+    const numericValue = parseFloat(numericString) || 0;
+    
+    // Convert to dollars and format
+    return (numericValue / 100).toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD",
+    });
+  };
+
+  // Handle amount input changes
+  const handleAmountChange = (e) => {
+    const input = e.target.value;
+    
+    // Store the raw numeric value (in cents)
+    const numericString = input.replace(/[^\d]/g, "");
+    setRawAmount(parseFloat(numericString) || 0);
+    
+    // Format for display
+    setDisplayAmount(input === "" ? "" : formatCurrency(numericString));
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-      const res = await axios.get("/api/admin/credits", {
+      await axios.post(
+        `/api/admin/credits/credit`,
+        { userId: selectedUser, amount: rawAmount / 100 }, // Convert cents to dollars
+        { headers: { Authorization: `Bearer ${getToken()}` } }
+      );
+      setMessage("Account successfully credited.");
+      setDisplayAmount("");
+      setRawAmount(0);
+    } catch (err) {
+      setMessage(err.response?.data?.message || "Error crediting account.");
+    }
+  };
+
+  // Fetch users
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const res = await axios.get("/api/admin/users", {
         headers: { Authorization: `Bearer ${getToken()}` },
       });
-      setRequests(res.data);
-    } catch (error) {
-      console.error("Failed to fetch credit requests", error);
-    }
-  };
-
-  const handleAccept = async (id) => {
-    try {
-      await axios.post(
-        `/api/admin/credits/accept/${id}`,
-        {},
-        { headers: { Authorization: `Bearer ${getToken()}` } }
-      );
-      fetchRequests();
-    } catch (error) {
-      console.error("Error accepting credit request:", error);
-    }
-  };
-
-  const handleDecline = async (id) => {
-    try {
-      await axios.post(
-        `/api/admin/credits/decline/${id}`,
-        {},
-        { headers: { Authorization: `Bearer ${getToken()}` } }
-      );
-      fetchRequests();
-    } catch (error) {
-      console.error("Error declining credit request:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchRequests();
+      setUsers(res.data);
+    };
+    fetchUsers();
   }, []);
 
   return (
-    <div className="bg-white p-6 rounded shadow">
-      <h2 className="text-lg font-semibold mb-4">Credit Requests</h2>
-      <div className="overflow-x-auto">
-        <table className="w-full border text-sm">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="p-2 border">User</th>
-              <th className="p-2 border">Amount</th>
-              <th className="p-2 border">Status</th>
-              <th className="p-2 border">Date</th>
-              <th className="p-2 border">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {requests.map((req) => (
-              <tr key={req._id} className="text-center">
-                <td className="p-2 border">{req.userEmail}</td>
-                <td className="p-2 border">${req.amount}</td>
-                <td className="p-2 border">{req.status}</td>
-                <td className="p-2 border">
-                  {new Date(req.date).toLocaleDateString()}
-                </td>
-                <td className="p-2 border space-x-2">
-                  {req.status === "pending" ? (
-                    <>
-                      <button
-                        onClick={() => handleAccept(req._id)}
-                        className="bg-green-500 text-white px-2 py-1 rounded"
-                      >
-                        Accept
-                      </button>
-                      <button
-                        onClick={() => handleDecline(req._id)}
-                        className="bg-red-500 text-white px-2 py-1 rounded"
-                      >
-                        Decline
-                      </button>
-                    </>
-                  ) : (
-                    <span className="text-gray-500">—</span>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <div className="bg-white p-6 rounded shadow max-w-xl mx-auto">
+      <h2 className="text-lg font-semibold mb-4">Credit User Money Wallet</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <select
+          className="w-full p-2 border rounded"
+          value={selectedUser}
+          onChange={(e) => setSelectedUser(e.target.value)}
+          required
+        >
+          <option value="">Select User</option>
+          {users.map((user) => (
+            <option key={user._id} value={user._id}>
+              {user.firstName} {user.lastName} ({user.email})
+            </option>
+          ))}
+        </select>
+
+        <input
+          type="text"
+          inputMode="decimal"
+          placeholder="$0.00"
+          value={displayAmount}
+          onChange={handleAmountChange}
+          className="w-full p-2 border rounded"
+          required
+        />
+        
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white p-2 rounded"
+        >
+          Credit Wallet
+        </button>
+
+        {message && (
+          <p className="text-center text-sm text-green-600 mt-2">{message}</p>
+        )}
+      </form>
     </div>
   );
 };

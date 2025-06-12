@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axios from "../api/axios";
-import { FiArrowRight, FiEye, FiEyeOff } from 'react-icons/fi';
+import { FiArrowRight, FiEye, FiEyeOff } from "react-icons/fi";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -8,7 +8,7 @@ const Login = () => {
   const [otp, setOtp] = useState("");
   const [showOtp, setShowOtp] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [msg, setMsg] = useState("");
+  const [msg, setMsg] = useState({ text: "", isError: false });
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -42,7 +42,7 @@ const Login = () => {
         <input
           type="email"
           placeholder="Email"
-          onChange={e => setEmail(e.target.value)}
+          onChange={(e) => setEmail(e.target.value)}
           className="w-full p-2 border rounded"
         />
 
@@ -51,7 +51,7 @@ const Login = () => {
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
-              onChange={e => setPassword(e.target.value)}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full p-2 pr-10 border rounded"
             />
             <button
@@ -68,9 +68,28 @@ const Login = () => {
           <input
             type="text"
             placeholder="Enter OTP"
-            onChange={e => setOtp(e.target.value)}
+            onChange={(e) => setOtp(e.target.value)}
             className="w-full p-2 border rounded"
           />
+        )}
+
+        {showOtp && (
+          <div className="flex justify-between items-center">
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  await axios.post("/api/auth/resend-otp", { email });
+                  setMsg("OTP resent successfully.");
+                } catch (err) {
+                  setMsg("Failed to resend OTP.");
+                }
+              }}
+              className="text-sm text-blue-600 underline"
+            >
+              Resend OTP
+            </button>
+          </div>
         )}
 
         <button
@@ -81,9 +100,20 @@ const Login = () => {
         </button>
       </form>
 
-      {msg && (
-        <p className="mt-4 text-center text-sm text-green-600">{msg}</p>
-      )}
+   {msg.text && (
+          <p className={`text-sm text-center mt-4 ${
+            msg.isError ? "text-red-600" : "text-green-600"
+          }`}>
+            {msg.text}
+          </p>
+        )}
+
+      {/* Add forgot password link */}
+      <div className="text-right mt-2">
+        <a href="/forgot-password" className="text-sm text-blue-600 underline">
+          Forgot Password?
+        </a>
+      </div>
 
       <p className="my-10 text-center text-sm text-green-600">
         <a

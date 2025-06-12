@@ -8,7 +8,7 @@ const TransactionsTab = () => {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const res = await axios.get("/api/account/transactions", {
+        const res = await axios.get("/api/transactions/transactions", {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
 

@@ -1,16 +1,26 @@
 import React, { useState } from 'react';
 import { FiMenu, FiX, FiUser, FiLogIn, FiLogOut } from 'react-icons/fi';
 
-const Navbar = ({ isAuthenticated = false, onLogout = () => {} }) => {
+const Navbar = ({ isAuthenticated = false, isAdmin = false, onLogout = () => {} }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const navLinks = [
+  // Debug log - remove in production
+  console.log('Rendering Navbar with:', { isAuthenticated, isAdmin });
+
+  // Common links for all users
+  const commonLinks = [
     { label: 'Home', href: '/' },
-    { label: 'About Us', href: '/about-us' },
-    { label: 'My Account', href: '/dashboard' },
-    { label: 'Investments', href: '/investments' }
+    { label: 'About Us', href: '/about-us' }
   ];
 
+  // Links for authenticated users only
+  const authLinks = isAuthenticated ? [
+    { label: 'My Account', href: '/dashboard' },
+    { label: 'Investments', href: '/investments' }
+  ] : [];
+
+  // Combine links
+  const navLinks = [...commonLinks, ...authLinks];
   return (
     <nav className="bg-white shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -33,13 +43,13 @@ const Navbar = ({ isAuthenticated = false, onLogout = () => {} }) => {
             ))}
           </div>
 
-          {/* Auth Buttons (Desktop) */}
+          {/* Auth Buttons (Desktop) - Only show when not authenticated */}
           <div className="hidden md:flex items-center space-x-4">
             {isAuthenticated ? (
               <>
-                <a href="/profile" className="text-gray-600 hover:text-blue-600 flex items-center text-sm font-medium">
+                {/* <a href={isAdmin ? '/admin/profile' : '/profile'} className="text-gray-600 hover:text-blue-600 flex items-center text-sm font-medium">
                   <FiUser className="mr-1" /> Profile
-                </a>
+                </a> */}
                 <button
                   onClick={onLogout}
                   className="text-gray-600 hover:text-blue-600 flex items-center text-sm font-medium"
@@ -89,12 +99,12 @@ const Navbar = ({ isAuthenticated = false, onLogout = () => {} }) => {
           <div className="pt-4 border-t border-gray-100">
             {isAuthenticated ? (
               <>
-                <a
-                  href="/profile"
+                {/* <a
+                  href={isAdmin ? '/admin/profile' : '/profile'}
                   className="flex items-center px-3 py-2 text-gray-600 hover:text-blue-600 text-base"
                 >
                   <FiUser className="mr-2" /> Profile
-                </a>
+                </a> */}
                 <button
                   onClick={onLogout}
                   className="w-full text-left flex items-center px-3 py-2 text-gray-600 hover:text-blue-600 text-base"

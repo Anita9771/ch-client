@@ -66,7 +66,7 @@ const WithdrawalRequests = () => {
           <tbody>
             {requests.map((req) => (
               <tr key={req._id} className="text-sm text-center">
-                <td className="p-2 border">{req.userEmail}</td>
+                <td className="p-2 border">{req.firstName} {req.lastName}</td>
                 <td className="p-2 border">${req.amount}</td>
                 <td className="p-2 border">{req.accountName || "—"}</td>
                 <td className="p-2 border">{req.accountNumber || "—"}</td>

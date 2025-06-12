@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import axios from "../api/axios";
 import { getToken } from "../utils/auth";
+import CreditRequests from "./CreditRequests";
 
 const TransferRequests = () => {
   const [withdrawals, setWithdrawals] = useState([]);
@@ -33,7 +34,7 @@ const TransferRequests = () => {
   // ACTION HANDLERS
   const handleWithdrawalAction = async (id, action) => {
     try {
-      await axios.post(`/api/admin/withdrawals/${action}/${id}`, {}, {
+      await axios.post(`/api/admin/requests/withdraw/${action}/${id}`, {}, {
         headers: { Authorization: `Bearer ${getToken()}` },
       });
       fetchWithdrawals();
@@ -44,7 +45,7 @@ const TransferRequests = () => {
 
   const handleCreditAction = async (id, action) => {
     try {
-      await axios.post(`/api/admin/credits/${action}/${id}`, {}, {
+      await axios.post(`/api/admin/requests/requests/credit/${action}/${id}`, {}, {
         headers: { Authorization: `Bearer ${getToken()}` },
       });
       fetchCredits();
@@ -117,7 +118,8 @@ const TransferRequests = () => {
       </div>
 
       {/* CREDITS TABLE */}
-      <div className="bg-white p-6 rounded shadow">
+      <CreditRequests />
+      {/* <div className="bg-white p-6 rounded shadow">
         <h2 className="text-lg font-semibold mb-4">Credit Requests</h2>
         <div className="overflow-x-auto">
           <table className="w-full border text-sm">
@@ -164,7 +166,7 @@ const TransferRequests = () => {
             </tbody>
           </table>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

@@ -2,29 +2,33 @@ import { useState, useEffect } from "react";
 import axios from "../api/axios";
 
 const networkOptions = {
-  btc: ["Bitcoin Mainnet", "Lightning Network"],
-  eth: ["Ethereum Mainnet", "Arbitrum", "Polygon"],
-  usdt: ["Ethereum", "Tron", "BNB Smart Chain"],
-  bnb: ["BNB Smart Chain", "BNB Beacon Chain"],
-  xrp: ["Ripple Mainnet"],
-};
+  btc: ["Bitcoin"],
+  eth: ["Ethereum"],
+  usdt: ["Tron"],
+  // bnb: ["BNB Smart Chain", "BNB Beacon Chain"],
+  // xrp: ["Ripple Mainnet"],
+}
+
+// Bitcoin (BTC)</option>
+//           <option value="eth">Ethereum (ETH)</option>
+//           <option value="usdt">Tether (USDT)</option>
 
 const randomAddresses = {
   btc: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
   eth: "0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe",
   usdt: "TYy2m7DdE2kUQABpLoByRmkiHBaXYGqF2R",
-  bnb: "bnb1grpf0955h0ykzq3ar5nmum7y6gdfl6lxfn46h2",
-  xrp: "rEb8TK3gBgk5auZkwc6sHnwrGVJH8DuaLh",
+  // bnb: "bnb1grpf0955h0ykzq3ar5nmum7y6gdfl6lxfn46h2",
+  // xrp: "rEb8TK3gBgk5auZkwc6sHnwrGVJH8DuaLh",
 };
 
-const formatCurrency = (value) => {
-  const number = parseFloat(value.replace(/[^\d]/g, "")) / 100;
-  if (isNaN(number)) return "";
-  return number.toLocaleString("en-US", {
-    style: "currency",
-    currency: "USD",
-  });
-};
+// const formatCurrency = (value) => {
+//   const number = parseFloat(value.replace(/[^\d]/g, "")) / 100;
+//   if (isNaN(number)) return "";
+//   return number.toLocaleString("en-US", {
+//     style: "currency",
+//     currency: "USD",
+//   });
+// };
 
 const CryptoTab = () => {
   // SEND crypto state
@@ -32,7 +36,7 @@ const CryptoTab = () => {
   const [network, setNetwork] = useState("");
   const [amount, setAmount] = useState("");
   const [walletAddress, setWalletAddress] = useState("");
-  const [cryptoBalance, setCryptoBalance] = useState(0);
+  const [cryptoBalance, setCryptoBalance] = useState(null);
   const [message, setMessage] = useState("");
 
   // RECEIVE crypto state
@@ -42,11 +46,16 @@ const CryptoTab = () => {
   useEffect(() => {
     const fetchCryptoBalance = async () => {
       try {
-        const res = await axios.get(`/api/account/crypto-balance/${sendCrypto}`, {
+        const res = await axios.get(`/api/account/summary`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
-        setCryptoBalance(res.data.balance);
-      } catch {
+        
+        // Ensure we're getting the specific crypto balance
+        const balance = res.data.crypto?.[sendCrypto] || 0;
+        setCryptoBalance(balance);
+        
+      } catch (err) {
+        console.error("Failed to fetch crypto balance:", err);
         setCryptoBalance(0);
       }
     };
@@ -54,35 +63,53 @@ const CryptoTab = () => {
     fetchCryptoBalance();
   }, [sendCrypto]);
 
-  const handleSend = async (e) => {
-    e.preventDefault();
-    const numericAmount = parseFloat(amount) / 100;
+const handleSend = async (e) => {
+  e.preventDefault();
+  const numericAmount = parseFloat(amount);
 
-    if (numericAmount > cryptoBalance) {
-      setMessage(
-        `Insufficient ${sendCrypto.toUpperCase()} balance. Your current balance is ${cryptoBalance} ${sendCrypto.toUpperCase()}.`
-      );
-      return;
-    }
+  if (isNaN(numericAmount) || numericAmount <= 0) {
+    setMessage("Please enter a valid amount.");
+    return;
+  }
 
-    try {
-      const res = await axios.post(
-        "/api/account/send-crypto",
-        { amount: numericAmount, crypto: sendCrypto, network, walletAddress },
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-      );
-      setMessage(res.data.message);
-      setAmount("");
-      setWalletAddress("");
-    } catch (err) {
-      setMessage(err.response?.data?.message || "Crypto transaction failed");
-    }
-  };
+  if (numericAmount > Number(cryptoBalance)) {
+    setMessage(
+      `Insufficient ${sendCrypto.toUpperCase()} balance. Your current balance is ${cryptoBalance} ${sendCrypto.toUpperCase()}.`
+    );
+    return;
+  }
 
-  const handleAmountChange = (e) => {
-    const raw = e.target.value.replace(/\D/g, "");
-    setAmount(raw);
-  };
+  try {
+    // console.log("Sending crypto request:")
+    const res = await axios.post(
+      "/api/user/account/crypto-request/send",
+      {
+        amount: numericAmount,
+        crypto: sendCrypto.toLowerCase(),
+        network,
+        walletAddress,
+        type: "debit",
+        status: "pending",
+      },
+      {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      }
+    );
+    console.log("Response from crypto request:", res.data);
+    setMessage("Your request has been submitted for admin approval.");
+    setAmount("");
+    setWalletAddress("");
+  } catch (err) {
+    setMessage(err.response?.data?.message || "Failed to submit request.");
+  }
+};
+
+
+
+  // const handleAmountChange = (e) => {
+  //   const raw = e.target.value.replace(/\D/g, "");
+  //   setAmount(raw);
+  // };
 
   return (
     <div className="bg-white p-6 rounded shadow">
@@ -99,11 +126,9 @@ const CryptoTab = () => {
           }}
           className="w-full p-2 border rounded"
         >
-          <option value="btc">Bitcoin (BTC)</option>
+         <option value="btc">Bitcoin (BTC)</option>
           <option value="eth">Ethereum (ETH)</option>
           <option value="usdt">Tether (USDT)</option>
-          <option value="bnb">Binance Coin (BNB)</option>
-          <option value="xrp">Ripple (XRP)</option>
         </select>
 
         <select
@@ -130,11 +155,11 @@ const CryptoTab = () => {
         />
 
         <input
-          type="text"
-          inputMode="numeric"
-          placeholder="$0.00"
-          value={formatCurrency(amount)}
-          onChange={handleAmountChange}
+          type="number"
+          // inputMode="numeric"
+          placeholder="0.00"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
           className="w-full p-2 border rounded"
           required
         />

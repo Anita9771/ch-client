@@ -5,7 +5,7 @@ import { FiArrowRight, FiEye, FiEyeOff, FiLock, FiUser } from 'react-icons/fi';
 const AdminLogin = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [msg, setMsg] = useState("");
+const [msg, setMsg] = useState({ text: "", isError: false });
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -13,7 +13,7 @@ const AdminLogin = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post("/api/auth/admin-login", { username, password });
+      const res = await axios.post("/api/admin/login", { username, password });
       localStorage.setItem("adminToken", res.data.token);
       localStorage.setItem("adminRole", res.data.role);
       setMsg("Admin authentication successful!");
@@ -89,13 +89,13 @@ const AdminLogin = () => {
         </button>
       </form>
 
-      {msg && (
-        <p className={`mt-4 text-center text-sm ${
-          msg.includes("failed") ? "text-red-600" : "text-green-600"
-        }`}>
-          {msg}
-        </p>
-      )}
+      {msg.text && (
+          <p className={`text-sm text-center mt-4 ${
+            msg.isError ? "text-red-600" : "text-green-600"
+          }`}>
+            {msg.text}
+          </p>
+        )}
 
       <div className="mt-6 text-center">
         <a

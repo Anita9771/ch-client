@@ -17,23 +17,23 @@ const AdminDashboard = () => {
   });
 
   // Fetch admin info including last login on mount
-  useEffect(() => {
-    const fetchAdminInfo = async () => {
-      try {
-        const res = await axios.get('/api/admin/info', {
-          headers: { Authorization: `Bearer ${getToken()}` },
-        });
-        setAdminInfo({
-          name: res.data.name || 'Admin',
-          lastLogin: res.data.lastLogin || 'Unknown',
-        });
-      } catch (err) {
-        console.error('Failed to fetch admin info:', err);
-        // Optionally handle error (e.g. logout if unauthorized)
-      }
-    };
-    fetchAdminInfo();
-  }, []);
+  // useEffect(() => {
+  //   const fetchAdminInfo = async () => {
+  //     try {
+  //       const res = await axios.get('/api/admin/info', {
+  //         headers: { Authorization: `Bearer ${getToken()}` },
+  //       });
+  //       setAdminInfo({
+  //         name: res.data.name || 'Admin',
+  //         lastLogin: res.data.lastLogin || 'Unknown',
+  //       });
+  //     } catch (err) {
+  //       console.error('Failed to fetch admin info:', err);
+  //       // Optionally handle error (e.g. logout if unauthorized)
+  //     }
+  //   };
+  //   fetchAdminInfo();
+  // }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
@@ -57,8 +57,8 @@ const AdminDashboard = () => {
     <div className="p-4 sm:p-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 space-y-3 sm:space-y-0">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold">Welcome, {adminInfo.name}</h1>
-          <p className="text-sm text-gray-500">Last login: {adminInfo.lastLogin}</p>
+          <h1 className="text-xl sm:text-2xl font-bold">Welcome Admin</h1>
+          {/* <p className="text-sm text-gray-500">Last login: {adminInfo.lastLogin}</p> */}
         </div>
         <button
           onClick={handleLogout}
